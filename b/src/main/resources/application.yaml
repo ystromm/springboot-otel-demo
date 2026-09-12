@@ -1,3 +1,16 @@
 spring:
   application:
     name: b
+  sql:
+    init:
+      mode: always
+  kafka:
+    consumer:
+      group-id: payment-processors
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.example.b
+        spring.json.value.default.type: com.example.b.PaymentEvent
+        spring.json.use.type.headers: false
