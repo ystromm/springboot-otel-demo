@@ -1,6 +1,7 @@
 package com.example.b;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -12,9 +13,10 @@ public record Payment(
         String reference,
         String recipientId,
         String currency,
-        BigDecimal amount) {
+        BigDecimal amount,
+        Instant createdAt) {
 
     public Payment(String reference, String recipientId, String currency, BigDecimal amount) {
-        this(UUID.randomUUID(), reference, recipientId, currency, amount);
+        this(UUID.randomUUID(), reference, recipientId, currency, amount, Instant.now());
     }
 }
