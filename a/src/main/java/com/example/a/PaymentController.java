@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Payments", description = "Payment ingestion endpoints")
 public class PaymentController {
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private static final String PAYMENTS_TOPIC = "payments";
 
@@ -35,6 +38,8 @@ public class PaymentController {
                 @ApiResponse(responseCode = "400", description = "Payment document is invalid", content = @Content)
             })
     public ResponseEntity<Void> createPayment(@Valid @RequestBody PaymentRequest payment) {
+        logger.info("Received payment request: reference={}, recipientId={}, currency={}, amount={}",
+                payment.reference(), payment.recipientId(), payment.currency(), payment.amount());
         PaymentEvent event = new PaymentEvent(
                 payment.reference(),
                 payment.recipientId(),
