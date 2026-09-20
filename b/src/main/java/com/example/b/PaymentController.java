@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/payments")
 public class PaymentController {
-    private static final Logger logger = LoggerFactory.getLogger(PaymentEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentRepository paymentRepository;
 
