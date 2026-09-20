@@ -1,5 +1,6 @@
 package com.example.b;
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,15 +18,24 @@ public class PaymentEventListener {
         this.paymentRepository = paymentRepository;
     }
 
+    static final List<String> CURRENCIES = List.of("USD", "EUR", "GBP", "JPY", "CAD", "AUD", "SEK");
+
     @KafkaListener(topics = "payments", groupId = "payment-processors")
     public void handle(ConsumerRecord<String, PaymentEvent> event) {
-        var eventValue = event.value();
+        final var eventValue = event.value();
+        final var currency = eventValue.currency();
+        logger.info("Received payment event: reference={}, recipientId={}, currency={}, amount={}",
+                eventValue.reference(), eventValue.recipientId(), currency, eventValue.amount());
+        
+        CURRENCIES.stream()
+                .filter(c -> c.equalsIgnoreCase(currency))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported currency: " + currency));
+
         Payment payment = paymentRepository.save(new Payment(
                 eventValue.reference(),
                 eventValue.recipientId(),
-                eventValue.currency(),
+                currency,
                 eventValue.amount()));
-        logger.info("Received payment event: reference={}, recipientId={}, currency={}, amount={}",
-                eventValue.reference(), eventValue.recipientId(), eventValue.currency(), eventValue.amount());
     }
 }

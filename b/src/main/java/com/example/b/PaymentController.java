@@ -29,27 +29,13 @@ public class PaymentController {
     }
 
     @GetMapping
-    public Page<Payment> listPayments(@RequestParam(defaultValue = "0") int page) {
+    public Page<Payment> listPayments(@RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(required = false) String currency) {
         final PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        final Page<Payment> payments = paymentRepository.findAll(pageRequest);
+        final Page<Payment> payments = currency == null || currency.isBlank()
+                ? paymentRepository.findAll(pageRequest)
+                : paymentRepository.findByCurrency(currency, pageRequest);
         logger.info("Retrieved {} payments for page {}", payments.getNumberOfElements(), page);
         return payments;
-    }
-
-    @PostMapping("/generate")
-    public List<Payment> generatePayments() {
-        List<Payment> payments = java.util.stream.Stream.generate(this::randomPayment)
-                .limit(10)
-                .toList();
-        return StreamSupport.stream(paymentRepository.saveAll(payments).spliterator(), false).toList();
-    }
-
-    private Payment randomPayment() {
-        String reference = "PAY-" + UUID.randomUUID();
-        String recipientId = "recipient-" + UUID.randomUUID();
-        String[] currencies = {"EUR", "USD", "GBP", "SEK"};
-        String currency = currencies[ThreadLocalRandom.current().nextInt(currencies.length)];
-        BigDecimal amount = BigDecimal.valueOf(ThreadLocalRandom.current().nextLong(100, 100_000), 2);
-        return new Payment(reference, recipientId, currency, amount);
     }
 }
