@@ -19,13 +19,13 @@ public class PaymentEventListener {
 
     @KafkaListener(topics = "payments", groupId = "payment-processors")
     public void handle(ConsumerRecord<String, PaymentEvent> event) {
-        var paymentEvent = event.value();
+        var eventValue = event.value();
         Payment payment = paymentRepository.save(new Payment(
-                paymentEvent.reference(),
-                paymentEvent.recipientId(),
-                paymentEvent.currency(),
-                paymentEvent.amount()));
+                eventValue.reference(),
+                eventValue.recipientId(),
+                eventValue.currency(),
+                eventValue.amount()));
         logger.info("Received payment event: reference={}, recipientId={}, currency={}, amount={}",
-                paymentEvent.reference(), paymentEvent.recipientId(), paymentEvent.currency(), paymentEvent.amount());
+                eventValue.reference(), eventValue.recipientId(), eventValue.currency(), eventValue.amount());
     }
 }
