@@ -14,8 +14,16 @@ services:
       OTEL_LOGS_EXPORTER: "otlp"
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp"
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS}
-      OTEL_INSTRUMENTATION_HTTP_RESPONSE_INJECTOR_ENABLED: true
-      OTEL_JAVAAGENT_EXCLUDE_CONTAINING_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net"
+      OTEL_INSTRUMENTATION_HTTP_SERVER_ENABLED: true
+      OTEL_INSTRUMENTATION_HTTP_RESPONSE_SERVER_TIMING_ENABLED: true
+      OTEL_RESPONSE_CUSTOM_HEADERS_ENABLED: true
+      # exclude the Grafana OTLP endpoint from tracing 
+      OTEL_HTTP_CLIENT_EXCLUDED_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp/*"
+      OTEL_JAVAAGENT_EXCLUDE_INCOMING_OUTGOING_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp/*"
+      # disable tracing for the otlp exporter itself
+      OTEL_INSTRUMENTATION_OTLP_EXPORTER_ENABLED: false
+      # disable instrumentation for HikariCP (connection pool) to avoid excessive spans
+      OTEL_INSTRUMENTATION_HIKARICP_ENABLED: false
     depends_on:
       kafka:
         condition: service_healthy
@@ -38,8 +46,15 @@ services:
       OTEL_LOGS_EXPORTER: "otlp"
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp"
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS}
-      OTEL_INSTRUMENTATION_HTTP_RESPONSE_INJECTOR_ENABLED: true
-      OTEL_JAVAAGENT_EXCLUDE_CONTAINING_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net"
+      OTEL_RESPONSE_CUSTOM_HEADERS_ENABLED: true
+      OTEL_INSTRUMENTATION_HTTP_RESPONSE_SERVER_TIMING_ENABLED: true
+      # exclude the Grafana OTLP endpoint from tracing 
+      OTEL_HTTP_CLIENT_EXCLUDED_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp/*"
+      OTEL_JAVAAGENT_EXCLUDE_INCOMING_OUTGOING_URLS: "https://otlp-gateway-prod-eu-north-0.grafana.net/otlp/*"
+      # disable tracing for the otlp exporter itself
+      OTEL_INSTRUMENTATION_OTLP_EXPORTER_ENABLED: false
+      # disable instrumentation for HikariCP (connection pool) to avoid excessive spans
+      OTEL_INSTRUMENTATION_HIKARICP_ENABLED: false
     depends_on:
       postgres:
         condition: service_healthy
