@@ -1,5 +1,6 @@
 package com.example.a;
 
+import io.opentelemetry.api.trace.Span;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,6 +39,7 @@ public class PaymentController {
                 @ApiResponse(responseCode = "400", description = "Payment document is invalid", content = @Content)
             })
     public ResponseEntity<Void> createPayment(@Valid @RequestBody PaymentRequest payment) {
+        Span.current().setAttribute("payment.reference", payment.reference());
         logger.info("Received payment request: reference={}, recipientId={}, currency={}, amount={}",
                 payment.reference(), payment.recipientId(), payment.currency(), payment.amount());
         PaymentEvent event = new PaymentEvent(

@@ -1,6 +1,7 @@
 package com.example.b;
 
 import java.util.List;
+import io.opentelemetry.api.trace.Span;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -23,6 +24,7 @@ public class PaymentEventListener {
     @KafkaListener(topics = "payments", groupId = "payment-processors")
     public void handle(ConsumerRecord<String, PaymentEvent> event) {
         final var eventValue = event.value();
+        Span.current().setAttribute("payment.reference", eventValue.reference());
         final var currency = eventValue.currency();
         logger.info("Received payment event: reference={}, recipientId={}, currency={}, amount={}",
                 eventValue.reference(), eventValue.recipientId(), currency, eventValue.amount());
